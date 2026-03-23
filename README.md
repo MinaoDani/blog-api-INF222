@@ -8,7 +8,7 @@ API REST complète pour la gestion d'un blog, développée avec **Node.js / Expr
 
 ```bash
 # 1. Cloner le dépôt
-git clone https://github.com/votre-username/blog-api.git
+git clone https://github.com/MinaoDani/blog-api-INF222.git
 cd blog-api
 
 # 2. Installer les dépendances
