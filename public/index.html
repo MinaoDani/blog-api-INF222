@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog API – Interface</title>
+  <style>
+    /* ── Reset & variables ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg: #0f0f1a;
+      --card: #1a1a2e;
+      --card2: #16213e;
+      --accent: #e94560;
+      --accent2: #0f3460;
+      --text: #e0e0e0;
+      --muted: #888;
+      --border: #2a2a4a;
+      --green: #4caf50;
+      --yellow: #ffc107;
+      --blue: #2196f3;
+      --red: #e94560;
+      --radius: 12px;
+    }
+    body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--card) 0%, var(--accent2) 100%);
+      padding: 24px 40px; display: flex; align-items: center; justify-content: space-between;
+      border-bottom: 2px solid var(--accent);
+    }
+    header h1 { font-size: 1.8rem; font-weight: 700; }
+    header h1 span { color: var(--accent); }
+    header a {
+      background: var(--accent); color: #fff; padding: 8px 18px; border-radius: 8px;
+      text-decoration: none; font-size: .9rem; font-weight: 600; transition: opacity .2s;
+    }
+    header a:hover { opacity: .85; }
+
+    /* ── Layout ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 32px 20px; }
+
+    /* ── Search bar ── */
+    .search-bar {
+      display: flex; gap: 10px; margin-bottom: 28px;
+    }
+    .search-bar input {
+      flex: 1; padding: 12px 16px; border-radius: var(--radius); border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-size: 1rem;
+    }
+    .search-bar input:focus { outline: 2px solid var(--accent); }
+
+    /* ── Filters ── */
+    .filters { display: flex; gap: 10px; margin-bottom: 28px; flex-wrap: wrap; }
+    .filters input, .filters select {
+      padding: 9px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-size: .9rem;
+    }
+    .filters input:focus, .filters select:focus { outline: 2px solid var(--accent); }
+
+    /* ── Buttons ── */
+    button {
+      cursor: pointer; border: none; border-radius: 8px; font-weight: 600;
+      font-size: .9rem; transition: opacity .2s, transform .1s;
+    }
+    button:hover { opacity: .88; transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    .btn-primary   { background: var(--accent); color: #fff; padding: 10px 20px; }
+    .btn-secondary { background: var(--accent2); color: #fff; padding: 10px 20px; }
+    .btn-success   { background: var(--green); color: #fff; padding: 7px 14px; }
+    .btn-danger    { background: var(--red); color: #fff; padding: 7px 14px; }
+    .btn-edit      { background: var(--yellow); color: #111; padding: 7px 14px; }
+    .btn-small     { font-size: .8rem; padding: 5px 10px; }
+
+    /* ── Section titles ── */
+    .section-title {
+      font-size: 1.25rem; font-weight: 700; margin-bottom: 18px;
+      padding-left: 12px; border-left: 4px solid var(--accent);
+    }
+
+    /* ── Form card ── */
+    .form-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; margin-bottom: 32px;
+    }
+    .form-card.collapsed .form-body { display: none; }
+    .form-header {
+      display: flex; justify-content: space-between; align-items: center;
+      cursor: pointer; user-select: none;
+    }
+    .form-header .toggle { color: var(--muted); font-size: 1.2rem; }
+    .form-body { margin-top: 20px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group.full { grid-column: 1 / -1; }
+    label { font-size: .85rem; color: var(--muted); font-weight: 600; }
+    input[type=text], input[type=date], textarea, select {
+      padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--card2); color: var(--text); font-size: .95rem; width: 100%;
+    }
+    input:focus, textarea:focus, select:focus { outline: 2px solid var(--accent); border-color: var(--accent); }
+    textarea { resize: vertical; min-height: 100px; }
+    .form-actions { margin-top: 18px; display: flex; gap: 10px; }
+
+    /* ── Articles grid ── */
+    .articles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+
+    /* ── Article card ── */
+    .article-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 20px; display: flex; flex-direction: column; gap: 10px;
+      transition: border-color .2s, transform .2s;
+    }
+    .article-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+    .article-card .card-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+    .article-card h3 { font-size: 1.05rem; font-weight: 700; line-height: 1.3; flex: 1; }
+    .badge {
+      font-size: .72rem; padding: 3px 9px; border-radius: 20px; font-weight: 700;
+      white-space: nowrap;
+    }
+    .badge-cat  { background: var(--accent2); color: #fff; }
+    .badge-id   { background: var(--border); color: var(--muted); }
+    .article-card .meta { font-size: .82rem; color: var(--muted); }
+    .article-card .excerpt { font-size: .9rem; color: #bbb; line-height: 1.5; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .tag {
+      font-size: .75rem; background: rgba(233,69,96,.15); color: var(--accent);
+      border: 1px solid rgba(233,69,96,.3); padding: 2px 9px; border-radius: 20px;
+    }
+    .card-actions { display: flex; gap: 8px; margin-top: 6px; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.7);
+      z-index: 100; align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 28px; width: 90%; max-width: 540px; max-height: 85vh; overflow-y: auto;
+    }
+    .modal h2 { margin-bottom: 20px; font-size: 1.2rem; }
+    .modal-actions { margin-top: 20px; display: flex; gap: 10px; justify-content: flex-end; }
+
+    /* ── Toast ── */
+    #toast {
+      position: fixed; bottom: 28px; right: 28px; z-index: 200;
+      padding: 14px 22px; border-radius: 10px; font-weight: 600; font-size: .95rem;
+      display: none; animation: slideIn .3s ease;
+    }
+    #toast.success { background: var(--green); color: #fff; }
+    #toast.error   { background: var(--red); color: #fff; }
+    #toast.info    { background: var(--blue); color: #fff; }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+    .empty .icon { font-size: 3rem; margin-bottom: 12px; }
+
+    /* ── Stats ── */
+    .stats { display: flex; gap: 16px; margin-bottom: 28px; flex-wrap: wrap; }
+    .stat-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 16px 22px; flex: 1; min-width: 140px; text-align: center;
+    }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: var(--accent); }
+    .stat-card .label { font-size: .8rem; color: var(--muted); margin-top: 4px; }
+
+    @media (max-width: 600px) {
+      header { flex-direction: column; gap: 12px; padding: 20px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1> Blog <span>API</span></h1>
+  <a href="/api-docs" target="_blank">📚 Swagger UI</a>
+</header>
+
+<div class="container">
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat-card"><div class="value" id="stat-total">—</div><div class="label">Articles</div></div>
+    <div class="stat-card"><div class="value" id="stat-cats">—</div><div class="label">Catégories</div></div>
+    <div class="stat-card"><div class="value" id="stat-authors">—</div><div class="label">Auteurs</div></div>
+  </div>
+
+  <!-- Créer un article -->
+  <div class="form-card" id="create-form-card">
+    <div class="form-header" onclick="toggleForm()">
+      <div class="section-title" style="margin:0">➕ Nouvel article</div>
+      <span class="toggle" id="toggle-icon">▼</span>
+    </div>
+    <div class="form-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Titre *</label>
+          <input type="text" id="f-titre" placeholder="Titre de l'article" />
+        </div>
+        <div class="form-group">
+          <label>Auteur *</label>
+          <input type="text" id="f-auteur" placeholder="Nom de l'auteur" />
+        </div>
+        <div class="form-group">
+          <label>Catégorie</label>
+          <input type="text" id="f-categorie" placeholder="Tech, Science, Culture…" />
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="f-date" />
+        </div>
+        <div class="form-group">
+          <label>Tags (séparés par virgule)</label>
+          <input type="text" id="f-tags" placeholder="api, rest, web" />
+        </div>
+        <div class="form-group full">
+          <label>Contenu *</label>
+          <textarea id="f-contenu" placeholder="Contenu de l'article…"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button class="btn-primary" onclick="createArticle()">Publier l'article</button>
+        <button class="btn-secondary" onclick="clearForm()">Effacer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recherche & filtres -->
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="🔍  Rechercher dans les articles…" oninput="handleSearch()" />
+  </div>
+  <div class="filters">
+    <input type="text" id="filter-cat" placeholder="Catégorie" oninput="loadArticles()" />
+    <input type="text" id="filter-auteur" placeholder="Auteur" oninput="loadArticles()" />
+    <input type="date" id="filter-date" oninput="loadArticles()" />
+    <button class="btn-secondary" onclick="clearFilters()">✕ Réinitialiser</button>
+  </div>
+
+  <!-- Liste des articles -->
+  <div class="section-title"> Articles</div>
+  <div class="articles-grid" id="articles-container">
+    <div class="empty"><div class="icon">⏳</div><p>Chargement…</p></div>
+  </div>
+</div>
+
+<!-- Modal édition -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <h2> Modifier l'article <span id="edit-id-label"></span></h2>
+    <input type="hidden" id="edit-id" />
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Titre</label>
+        <input type="text" id="e-titre" />
+      </div>
+      <div class="form-group">
+        <label>Catégorie</label>
+        <input type="text" id="e-categorie" />
+      </div>
+      <div class="form-group">
+        <label>Tags (séparés par virgule)</label>
+        <input type="text" id="e-tags" />
+      </div>
+      <div class="form-group full">
+        <label>Contenu</label>
+        <textarea id="e-contenu"></textarea>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn-success" onclick="saveEdit()"> Sauvegarder</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+
+<script>
+  const API = '/api/articles';
+  let searchTimer = null;
+
+  // ── Toast ──────────────────────────────────────────────────
+  function toast(msg, type = 'success') {
+    const el = document.getElementById('toast');
+    el.textContent = msg; el.className = type; el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 3000);
+  }
+
+  // ── Toggle form ────────────────────────────────────────────
+  function toggleForm() {
+    const card = document.getElementById('create-form-card');
+    const icon = document.getElementById('toggle-icon');
+    card.classList.toggle('collapsed');
+    icon.textContent = card.classList.contains('collapsed') ? '▶' : '▼';
+  }
+
+  function clearForm() {
+    ['f-titre','f-auteur','f-categorie','f-date','f-tags','f-contenu'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+  }
+
+  function clearFilters() {
+    ['filter-cat','filter-auteur','filter-date','search-input'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    loadArticles();
+  }
+
+  // ── Stats ──────────────────────────────────────────────────
+  function updateStats(articles) {
+    document.getElementById('stat-total').textContent   = articles.length;
+    document.getElementById('stat-cats').textContent    = new Set(articles.map(a => a.categorie)).size;
+    document.getElementById('stat-authors').textContent = new Set(articles.map(a => a.auteur)).size;
+  }
+
+  // ── Render ─────────────────────────────────────────────────
+  function renderArticles(articles) {
+    const container = document.getElementById('articles-container');
+    if (!articles.length) {
+      container.innerHTML = `<div class="empty"><div class="icon">📭</div><p>Aucun article trouvé.</p></div>`;
+      return;
+    }
+    container.innerHTML = articles.map(a => {
+      const tags = Array.isArray(a.tags) ? a.tags : [];
+      const excerpt = a.contenu.length > 120 ? a.contenu.slice(0, 120) + '…' : a.contenu;
+      return `
+        <div class="article-card">
+          <div class="card-header">
+            <h3>${escHtml(a.titre)}</h3>
+            <span class="badge badge-id">#${a.id}</span>
+          </div>
+          <div class="meta">👤 ${escHtml(a.auteur)} &nbsp;·&nbsp; 📅 ${a.date} &nbsp;·&nbsp;
+            <span class="badge badge-cat">${escHtml(a.categorie)}</span>
+          </div>
+          <div class="excerpt">${escHtml(excerpt)}</div>
+          ${tags.length ? `<div class="tags">${tags.map(t => `<span class="tag">${escHtml(t)}</span>`).join('')}</div>` : ''}
+          <div class="card-actions">
+            <button class="btn-edit btn-small" onclick="openEdit(${a.id})"> Modifier</button>
+            <button class="btn-danger btn-small" onclick="deleteArticle(${a.id})"> Supprimer</button>
+          </div>
+        </div>`;
+    }).join('');
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  // ── Load articles ──────────────────────────────────────────
+  async function loadArticles() {
+    const cat    = document.getElementById('filter-cat').value.trim();
+    const auteur = document.getElementById('filter-auteur').value.trim();
+    const date   = document.getElementById('filter-date').value;
+    let url      = API + '?';
+    if (cat)    url += `categorie=${encodeURIComponent(cat)}&`;
+    if (auteur) url += `auteur=${encodeURIComponent(auteur)}&`;
+    if (date)   url += `date=${date}&`;
+    try {
+      const res = await fetch(url);
+      const articles = await res.json();
+      updateStats(articles);
+      renderArticles(articles);
+    } catch {
+      toast('Erreur de connexion au serveur.', 'error');
+    }
+  }
+
+  // ── Search ─────────────────────────────────────────────────
+  function handleSearch() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(async () => {
+      const q = document.getElementById('search-input').value.trim();
+      if (!q) { loadArticles(); return; }
+      try {
+        const res      = await fetch(`${API}/search?query=${encodeURIComponent(q)}`);
+        const articles = await res.json();
+        renderArticles(articles);
+        updateStats(articles);
+      } catch {
+        toast('Erreur lors de la recherche.', 'error');
+      }
+    }, 400);
+  }
+
+  // ── Create ─────────────────────────────────────────────────
+  async function createArticle() {
+    const titre    = document.getElementById('f-titre').value.trim();
+    const auteur   = document.getElementById('f-auteur').value.trim();
+    const contenu  = document.getElementById('f-contenu').value.trim();
+    const categorie= document.getElementById('f-categorie').value.trim() || 'General';
+    const date     = document.getElementById('f-date').value || new Date().toISOString().slice(0,10);
+    const rawTags  = document.getElementById('f-tags').value.trim();
+    const tags     = rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    if (!titre || !auteur || !contenu) {
+      toast('Titre, auteur et contenu sont obligatoires.', 'error'); return;
+    }
+
+    try {
+      const res  = await fetch(API, {
+        method: 'POST', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ titre, contenu, auteur, date, categorie, tags })
+      });
+      const data = await res.json();
+      if (!res.ok) { toast(data.error || 'Erreur.', 'error'); return; }
+      toast(' Article publié avec succès !');
+      clearForm();
+      loadArticles();
+    } catch {
+      toast('Erreur serveur.', 'error');
+    }
+  }
+
+  // ── Delete ─────────────────────────────────────────────────
+  async function deleteArticle(id) {
+    if (!confirm(`Supprimer l'article #${id} ?`)) return;
+    try {
+      const res  = await fetch(`${API}/${id}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (!res.ok) { toast(data.error || 'Erreur.', 'error'); return; }
+      toast(`🗑️ Article #${id} supprimé.`);
+      loadArticles();
+    } catch {
+      toast('Erreur serveur.', 'error');
+    }
+  }
+
+  // ── Edit modal ─────────────────────────────────────────────
+  async function openEdit(id) {
+    try {
+      const res     = await fetch(`${API}/${id}`);
+      const article = await res.json();
+      document.getElementById('edit-id').value        = article.id;
+      document.getElementById('edit-id-label').textContent = `#${article.id}`;
+      document.getElementById('e-titre').value        = article.titre;
+      document.getElementById('e-categorie').value    = article.categorie;
+      document.getElementById('e-contenu').value      = article.contenu;
+      document.getElementById('e-tags').value         = (article.tags || []).join(', ');
+      document.getElementById('edit-modal').classList.add('open');
+    } catch {
+      toast('Erreur de chargement.', 'error');
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+  }
+
+  async function saveEdit() {
+    const id       = document.getElementById('edit-id').value;
+    const titre    = document.getElementById('e-titre').value.trim();
+    const categorie= document.getElementById('e-categorie').value.trim();
+    const contenu  = document.getElementById('e-contenu').value.trim();
+    const rawTags  = document.getElementById('e-tags').value.trim();
+    const tags     = rawTags ? rawTags.split(',').map(t => t.trim()).filter(Boolean) : [];
+
+    try {
+      const res  = await fetch(`${API}/${id}`, {
+        method: 'PUT', headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ titre, contenu, categorie, tags })
+      });
+      const data = await res.json();
+      if (!res.ok) { toast(data.error || 'Erreur.', 'error'); return; }
+      toast(' Article mis à jour !');
+      closeModal();
+      loadArticles();
+    } catch {
+      toast('Erreur serveur.', 'error');
+    }
+  }
+
+  // ── Fermer modal en cliquant dehors ────────────────────────
+  document.getElementById('edit-modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+  });
+
+  // ── Init ───────────────────────────────────────────────────
+  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  loadArticles();
+</script>
+</body>
+</html>
